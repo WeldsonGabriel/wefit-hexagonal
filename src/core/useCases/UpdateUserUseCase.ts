@@ -6,6 +6,9 @@ export interface IUserRepository {
 }
 
 export class UpdateUserUseCase {
+  findUserById(id: string) {
+      throw new Error('Method not implemented.');
+  }
   private userRepository: IUserRepository;
   private messagingService: MessagingService;
 
