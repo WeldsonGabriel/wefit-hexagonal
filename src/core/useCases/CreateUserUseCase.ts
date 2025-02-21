@@ -1,12 +1,29 @@
-import { UserRepository } from '../'; // Ensure this path is correct and the file exists
+import { IUserRepository } from '../entities/User';
 import { MessagingService } from '../services/MessagingService';
 
 export class User {
+  id: any;
+  name: any;
+  userType: any;
+  address: any;
+  companies: any;
+    delete() {
+        throw new Error('Method not implemented.');
+    }
   id_usuario: any;
     name_usuario: string;
     cpf: string;
     email: string;
+  isDeleted: boolean;
+  updateUser: (name: string, email: string) => User;
+
   constructor(id_usuario: string, name_usuario: string, cpf: string, email: string) {
+    this.isDeleted = false;
+    this.updateUser = (name: string, email: string) => {
+      this.name_usuario = name;
+      this.email = email;
+      return this;
+    };
     this.id_usuario = id_usuario;
     this.name_usuario = name_usuario;
     this.cpf = cpf;

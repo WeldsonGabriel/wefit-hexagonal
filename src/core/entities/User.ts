@@ -1,6 +1,9 @@
 import { UserType } from '../enums/UserType';
+import { User } from '../useCases/CreateUserUseCase';
+// import { User } from '../useCases/CreateUserUseCase';
+import { User as UserEntity } from './User';
 
-export interface IUser {
+export interface UserInterface {
   id: string;
   name: string;
   cpf: string;
@@ -14,7 +17,7 @@ export interface IUser {
   updatedAt: Date;
 }
 
-export class User {
+export class UserClass {
   id: string;
   name: string;
   email: string;
@@ -32,7 +35,7 @@ export class User {
   }
 
   updateUser(name: string, email: string) {
-    return new User(this.id, name, email);
+    return new UserEntity(this.id, name, this.cpf, email);
   }
 
   delete() {
@@ -41,7 +44,12 @@ export class User {
 }
 
 export interface IUserRepository {
-  create(user: User): Promise<User>;
-  findById(id: string): Promise<User | null>;
+  update(id: string, newUser: UserClass): unknown;
+  delete(id: string): unknown;
+  save(user: UserClass): unknown;
+  create(user: UserClass): Promise<UserClass>;
+  findById(id: string): Promise<UserClass | null>;
   // Outros métodos, como update, delete, etc.
 }
+export { User };
+

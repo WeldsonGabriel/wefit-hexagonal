@@ -1,6 +1,9 @@
 import { User } from '../entities/User';
-import { IUserRepository } from '../entities/User';
 import { MessagingService } from '../services/MessagingService';
+
+export interface IUserRepository {
+  update(id: string, user: User): Promise<User>;
+}
 
 export class UpdateUserUseCase {
   private userRepository: IUserRepository;
@@ -12,7 +15,7 @@ export class UpdateUserUseCase {
   }
 
   async execute(user: User, newUser: User): Promise<User> {
-    const updatedUser = await this.userRepository.update(user.id, newUser);
+    const updatedUser: User = await this.userRepository.update(user.id, newUser);
     this.messagingService.sendEmail('User updated', `User with ID ${updatedUser.id} has been updated.`);
     return updatedUser;
   }
