@@ -1,7 +1,23 @@
+import { UserCreationAttributes } from '../../infrastructures/models/User';
 import { IUserRepository } from '../entities/User';
 import { MessagingService } from '../services/MessagingService';
 
 export class User {
+  static create(arg0: UserCreationAttributes): User | PromiseLike<User> {
+    throw new Error('Method not implemented.');
+  }
+  static findByPk(id: string): User | PromiseLike<User | null> | null {
+    throw new Error('Method not implemented.');
+  }
+  static findOne(arg0: { where: { email: string; }; }): User | PromiseLike<User | null> | null {
+    throw new Error('Method not implemented.');
+  }
+  static update(updateData: Partial<User>, arg1: { where: { id_usuario: string; }; }): [number] | PromiseLike<[number]> {
+    throw new Error('Method not implemented.');
+  }
+  static destroy(arg0: { where: { id_usuario: string; }; }) {
+    throw new Error('Method not implemented.');
+  }
   id: any;
   name: any;
   userType: any;
@@ -32,6 +48,12 @@ export class User {
 }
 
 export class CreateUserUseCase {
+  findUserById(id: string) {
+    throw new Error('Method not implemented.');
+  }
+  findAllUsers() {
+    throw new Error('Method not implemented.');
+  }
   private userRepository: IUserRepository;
   private messagingService: MessagingService;
 

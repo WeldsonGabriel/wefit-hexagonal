@@ -14,7 +14,7 @@ class UserController {
   async getUserById(req: Request, res: Response): Promise<Response> {
     try {
       const user = await UserRepository.getUserById(req.params.id);
-      if (user) {
+      if (user !== null) {
         return res.status(200).json(user);
       }
       return res.status(404).json({ message: 'User not found' });
@@ -26,7 +26,7 @@ class UserController {
   async getUserByEmail(req: Request, res: Response): Promise<Response> {
     try {
       const user = await UserRepository.getUserByEmail(req.params.email);
-      if (user) {
+      if (user !== null) {
         return res.status(200).json(user);
       }
       return res.status(404).json({ message: 'User not found' });
@@ -38,7 +38,7 @@ class UserController {
   async updateUser(req: Request, res: Response): Promise<Response> {
     try {
       const [updated] = await UserRepository.updateUser(req.params.id, req.body);
-      if (updated) {
+      if (updated > 0) {
         const updatedUser = await UserRepository.getUserById(req.params.id);
         return res.status(200).json(updatedUser);
       }
@@ -50,9 +50,10 @@ class UserController {
 
   async deleteUser(req: Request, res: Response): Promise<Response> {
     try {
-      const deleted = await UserRepository.deleteUser(req.params.id);
-      if (deleted) {
-        return res.status(204).json();
+      // Chama o método deleteUser passando o id e espera um número como resultado
+      const result = await UserRepository.deleteUser(req.params.id);
+      if (result > 0) {
+        return res.status(200).json({ message: 'User deleted successfully' });
       }
       return res.status(404).json({ message: 'User not found' });
     } catch (error) {
