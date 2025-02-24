@@ -1,6 +1,6 @@
 import { UserCreationAttributes } from '../../infrastructures/models/User';
 import { UserType } from '../../core/enums/UserType';
-
+import { v4 as uuidv4 } from 'uuid';
 export class UserMapper {
   static toUserCreationAttributes(
     id: string,
@@ -12,7 +12,7 @@ export class UserMapper {
     addressId: string
   ): UserCreationAttributes {
     return {
-      id_usuario: id,
+        id_usuario: id && id.trim() !== '' ? id : uuidv4(), // Gera um novo UUID se id for vazio
       name_usuario: name,
       cpf,
       email,
@@ -31,7 +31,7 @@ export class UserMapper {
     addressId: string
   ): any {
     return {
-      id_Individual: id,
+        id_Individual: uuidv4(),
       userId,
       addressId
     };
@@ -44,7 +44,7 @@ export class UserMapper {
     cpf: string // usaremos o CPF para responsável, conforme exemplo
   ): any {
     return {
-      id_Company: id,
+        id_Company: uuidv4(),
       userId,
       addressId,
       cnpj: '',

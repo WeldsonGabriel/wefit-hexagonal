@@ -33,7 +33,6 @@ export class CreateUserUseCase {
     try {
       // Cria o endereço
       const address = await this.addressRepository.create(addressData);
-      console.log("Endereço criado:", address);
 
       // Mapeia os dados para criação do usuário
       const userPayload: UserCreationAttributes = UserMapper.toUserCreationAttributes(
@@ -48,7 +47,6 @@ export class CreateUserUseCase {
 
       // Cria o usuário
       const user = await this.userRepository.create(userPayload, { transaction });
-      console.log("Usuário criado:", user);
 
       // Cria a entrada na tabela Individual ou Company conforme o tipo de usuário
       if (userType === UserType.INDIVIDUAL) {

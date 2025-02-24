@@ -9,6 +9,7 @@ import { MessagingService } from '../../core/services/MessagingService';
 
 @Service()
 export default class UserController {
+ 
   private createUserUseCase: CreateUserUseCase;
 
   constructor(
@@ -31,6 +32,7 @@ export default class UserController {
     try {
       // Desestruture os campos comuns e específicos
       const {
+        id,
         name,
         cpf,
         email,
@@ -43,11 +45,6 @@ export default class UserController {
         address,      // Para INDIVIDUAL
         addresses     // Para COMPANY: array de endereços
       } = req.body;
-
-       //Valida campos obrigatórios básicos
-      //if (!name || !email || !confirmEmail || !userType || !termsAccepted) {
-      //  return res.status(400).json({ error: 'Missing required fields' });
-      //}
 
       // Valida confirmação do email
       if (email !== confirmEmail) {
@@ -65,7 +62,7 @@ export default class UserController {
         }
         // Chamamos o caso de uso com os dados de individual
         const user = await this.createUserUseCase.execute(
-          '', // or generate a valid string ID
+          "", // or generate a valid string ID
           name,
           false,   // isDeleted
           cpf,
@@ -83,7 +80,7 @@ export default class UserController {
         // Chamamos o caso de uso para COMPANY
         // Neste exemplo, assumimos que o caso de uso tratará os endereços de forma apropriada
         const user = await this.createUserUseCase.execute(
-          '', // or generate a valid string ID
+          "", // or generate a valid string ID
           name,
           false,    // isDeleted
           responsibleCpf,  // Para COMPANY, o campo "cpf" é usado para o responsável, conforme sua lógica
