@@ -1,5 +1,4 @@
-// src/infrastructures/models/Company.ts
-import { DataTypes, Model, Optional } from 'sequelize';
+import { DataTypes, Model, Optional, ModelStatic } from 'sequelize';
 import sequelize from '../config/database';
 import User from './User';
 import Address from './Address';
@@ -10,9 +9,11 @@ export interface CompanyAttributes {
   responsibleCpf: string;
   userId: string;
   addressId?: string;
+  createdAt?: Date;
+  updatedAt?: Date;
 }
 
-export interface CompanyCreationAttributes extends Optional<CompanyAttributes, 'id_Company'> {}
+export interface CompanyCreationAttributes extends Optional<CompanyAttributes, 'id_Company' | 'addressId' | 'createdAt' | 'updatedAt'> {}
 
 export class Company extends Model<CompanyAttributes, CompanyCreationAttributes> implements CompanyAttributes {
   public id_Company!: string;
@@ -20,6 +21,9 @@ export class Company extends Model<CompanyAttributes, CompanyCreationAttributes>
   public responsibleCpf!: string;
   public userId!: string;
   public addressId?: string;
+
+  public readonly createdAt!: Date;
+  public readonly updatedAt!: Date;
 }
 
 Company.init({
@@ -43,22 +47,26 @@ Company.init({
   },
   addressId: {
     type: DataTypes.UUID,
-    allowNull: true,
+  },
+  createdAt: {
+    type: DataTypes.DATE,
+    allowNull: false,
+    defaultValue: DataTypes.NOW,
+  },
+  updatedAt: {
+    type: DataTypes.DATE,
+    allowNull: false,
+    defaultValue: DataTypes.NOW,
   },
 }, {
   sequelize,
   tableName: 'Company',
-  timestamps: false,
+  timestamps: true,
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt',
 });
 
-// Associações
-Company.belongsTo(User, { foreignKey: 'userId', as: 'user', onDelete: 'CASCADE' });
-Company.belongsTo(Address, { foreignKey: 'addressId', as: 'address' });
-
-// Para a chave única combinada, podemos usar índices:
-sequelize.getQueryInterface().addIndex('Company', {
-  fields: ['cnpj', 'responsibleCpf'],
-  unique: true,
-});
+Company.belongsTo(User as ModelStatic<User>, { foreignKey: 'userId', as: 'user', onDelete: 'CASCADE' });
+Company.belongsTo(Address, { foreignKey: 'addressId', as: 'address', onDelete: 'SET NULL' });
 
 export default Company;

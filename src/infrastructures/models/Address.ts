@@ -1,4 +1,3 @@
-// src/infrastructures/models/Address.ts
 import { DataTypes, Model, Optional } from 'sequelize';
 import sequelize from '../config/database';
 
@@ -17,7 +16,7 @@ export interface AddressAttributes {
   updatedAt?: Date;
 }
 
-export interface AddressCreationAttributes extends Optional<AddressAttributes, 'id_Address' | 'complement' | 'isCurrent' | 'isDeleted' | 'createdAt' | 'updatedAt'> {}
+export interface AddressCreationAttributes extends Optional<AddressAttributes, 'id_Address' | 'complement' | 'createdAt' | 'updatedAt'> {}
 
 export class Address extends Model<AddressAttributes, AddressCreationAttributes> implements AddressAttributes {
   public id_Address!: string;
@@ -71,10 +70,22 @@ Address.init({
   isCurrent: {
     type: DataTypes.BOOLEAN,
     defaultValue: true,
+    allowNull: false,
   },
   isDeleted: {
     type: DataTypes.BOOLEAN,
     defaultValue: false,
+    allowNull: false,
+  },
+  createdAt: {
+    type: DataTypes.DATE,
+    allowNull: false,
+    defaultValue: DataTypes.NOW,
+  },
+  updatedAt: {
+    type: DataTypes.DATE,
+    allowNull: false,
+    defaultValue: DataTypes.NOW,
   },
 }, {
   sequelize,

@@ -1,28 +1,54 @@
-import { User } from '../../core/entities/User';
+import { UserCreationAttributes } from '../../infrastructures/models/User';
+import { UserType } from '../../core/enums/UserType';
 
 export class UserMapper {
-  static toDTO(user: User) {
+  static toUserCreationAttributes(
+    id: string,
+    name: string,
+    cpf: string,
+    email: string,
+    userType: UserType,
+    isDeleted: boolean,
+    addressId: string
+  ): UserCreationAttributes {
     return {
-      id: user.id,
-      name: user.name,
-      email: user.email,
-      cpf: user.cpf,
-      userType: user.userType,
-      address: user.address ? {
-        street: user.address.street,
-        number: user.address.number,
-        complement: user.address.complement,
-        district: user.address.district,
-        city: user.address.city,
-        state: user.address.state,
-        cep: user.address.cep,
-      } : null,
-      companies: user.companies ? user.companies.map((company: { id: any; name: any; cnpj: any; }) => ({
-        id: company.id,
-        name: company.name,
-        cnpj: company.cnpj,
-      })) : [],
-      // ...other fields
+      id_usuario: id,
+      name_usuario: name,
+      cpf,
+      email,
+      emailConfirmed: false,
+      type: userType,
+      isDeleted,
+      addressId,
+      createdAt: new Date(),
+      updatedAt: new Date()
+    };
+  }
+
+  static toIndividualPayload(
+    id: string,
+    userId: string,
+    addressId: string
+  ): any {
+    return {
+      id_Individual: id,
+      userId,
+      addressId
+    };
+  }
+
+  static toCompanyPayload(
+    id: string,
+    userId: string,
+    addressId: string,
+    cpf: string // usaremos o CPF para responsável, conforme exemplo
+  ): any {
+    return {
+      id_Company: id,
+      userId,
+      addressId,
+      cnpj: '',
+      responsibleCpf: cpf
     };
   }
 }

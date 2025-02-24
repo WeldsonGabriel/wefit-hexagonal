@@ -1,6 +1,6 @@
 export class MessagingService {
-  sendEmail(subject: string, message: string): void {
-    // Implementação para envio de email (ex: via SMTP, API de terceiros, etc.)
-    console.log(`Email sent: ${subject} - ${message}`);
+  async sendWelcomeEmail(email: string): Promise<void> {
+    // Implementação do envio de email
+    console.log(`Enviando email de boas-vindas para ${email}`);
   }
 }

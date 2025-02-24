@@ -1,7 +1,6 @@
 // src/infrastructures/models/AddressRequest.ts
 import { DataTypes, Model, Optional } from 'sequelize';
 import sequelize from '../config/database';
-import User from './User';
 
 export interface AddressRequestAttributes {
   id_Request_Address: string;
@@ -78,6 +77,16 @@ AddressRequest.init({
     type: DataTypes.UUID,
     allowNull: false,
   },
+  createdAt: {
+    type: DataTypes.DATE,
+    allowNull: false,
+    defaultValue: DataTypes.NOW,
+  },
+  updatedAt: {
+    type: DataTypes.DATE,
+    allowNull: false,
+    defaultValue: DataTypes.NOW,
+  },
 }, {
   sequelize,
   tableName: 'AddressRequest',
@@ -85,7 +94,5 @@ AddressRequest.init({
   createdAt: 'createdAt',
   updatedAt: 'updatedAt',
 });
-
-AddressRequest.belongsTo(User, { foreignKey: 'userId', as: 'user', onDelete: 'CASCADE' });
 
 export default AddressRequest;

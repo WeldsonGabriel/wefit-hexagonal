@@ -1,71 +1,79 @@
-import { UserCreationAttributes } from '../../infrastructures/models/User';
-import { IUserRepository } from '../entities/User';
+import { IUserRepository } from '../../ports/out/IUserRepository';
+import { IAddressRepository } from '../../ports/out/IAddressRepository';
+import { IIndividualRepository } from '../../ports/out/IIndividualRepository';
+import { ICompanyRepository } from '../../ports/out/ICompanyRepository';
 import { MessagingService } from '../services/MessagingService';
-
-export class User {
-  static create(arg0: UserCreationAttributes): User | PromiseLike<User> {
-    throw new Error('Method not implemented.');
-  }
-  static findByPk(id: string): User | PromiseLike<User | null> | null {
-    throw new Error('Method not implemented.');
-  }
-  static findOne(arg0: { where: { email: string; }; }): User | PromiseLike<User | null> | null {
-    throw new Error('Method not implemented.');
-  }
-  static update(updateData: Partial<User>, arg1: { where: { id_usuario: string; }; }): [number] | PromiseLike<[number]> {
-    throw new Error('Method not implemented.');
-  }
-  static destroy(arg0: { where: { id_usuario: string; }; }) {
-    throw new Error('Method not implemented.');
-  }
-  id: any;
-  name: any;
-  userType: any;
-  address: any;
-  companies: any;
-    delete() {
-        throw new Error('Method not implemented.');
-    }
-  id_usuario: any;
-    name_usuario: string;
-    cpf: string;
-    email: string;
-  isDeleted: boolean;
-  updateUser: (name: string, email: string) => User;
-
-  constructor(id_usuario: string, name_usuario: string, cpf: string, email: string) {
-    this.isDeleted = false;
-    this.updateUser = (name: string, email: string) => {
-      this.name_usuario = name;
-      this.email = email;
-      return this;
-    };
-    this.id_usuario = id_usuario;
-    this.name_usuario = name_usuario;
-    this.cpf = cpf;
-    this.email = email;
-  }
-}
+import { UserType } from '../enums/UserType';
+import { User, UserCreationAttributes } from '../../infrastructures/models/User';
+import { Address } from '../../infrastructures/models/Address';
+import Database from '../../infrastructures/config/database';
+import { UserMapper } from '../../adapters/mappers/userMapper';
 
 export class CreateUserUseCase {
-  findUserById(id: string) {
-    throw new Error('Method not implemented.');
-  }
-  findAllUsers() {
-    throw new Error('Method not implemented.');
-  }
-  private userRepository: IUserRepository;
-  private messagingService: MessagingService;
+  constructor(
+    private userRepository: IUserRepository,
+    private addressRepository: IAddressRepository,
+    private individualRepository: IIndividualRepository,
+    private companyRepository: ICompanyRepository,
+    private messagingService: MessagingService
+  ) {}
 
-  constructor(userRepository: IUserRepository, messagingService: MessagingService) {
-    this.userRepository = userRepository;
-    this.messagingService = messagingService;
-  }
+  async execute(
+    id: string,
+    name: string,
+    isDeleted: boolean,
+    cpf: string,
+    email: string,
+    userType: UserType,
+    addressData: Partial<Address>
+  ): Promise<User> {
+    // Se a validação de entrada for feita por middleware, não é necessário repetir aqui
+    const transaction = await Database.transaction();
 
-  async execute(id_usuario: string, name_usuario: string, cpf: string, email: string): Promise<User> {
-    const user = new User(id_usuario, name_usuario, cpf, email);
-    await this.userRepository.save(user);
-    this.messagingService.sendEmail('User created', `User with ID ${user.id_usuario} has been created.`);
-    return user;
+    try {
+      // Cria o endereço
+      const address = await this.addressRepository.create(addressData);
+      console.log("Endereço criado:", address);
+
+      // Mapeia os dados para criação do usuário
+      const userPayload: UserCreationAttributes = UserMapper.toUserCreationAttributes(
+        id,
+        name,
+        cpf,
+        email,
+        userType,
+        isDeleted,
+        address.id_Address
+      );
+
+      // Cria o usuário
+      const user = await this.userRepository.create(userPayload, { transaction });
+      console.log("Usuário criado:", user);
+
+      // Cria a entrada na tabela Individual ou Company conforme o tipo de usuário
+      if (userType === UserType.INDIVIDUAL) {
+        const individualPayload = UserMapper.toIndividualPayload(id, user.id_usuario, address.id_Address);
+        await this.individualRepository.create(individualPayload, { transaction });
+      } else if (userType === UserType.COMPANY) {
+        const companyPayload = UserMapper.toCompanyPayload(id, user.id_usuario, address.id_Address, cpf);
+        await this.companyRepository.create(companyPayload, { transaction });
+      }
+
+      // Confirma a transação
+      await transaction.commit();
+
+      // Envia o email de boas-vindas (fora da transação para evitar que falha no envio impacte o banco)
+      await this.messagingService.sendWelcomeEmail(email);
+
+      return user;
+    } catch (error) {
+      // Reverte a transação em caso de erro
+      await transaction.rollback();
+      if (error instanceof Error) {
+        throw new Error(`Erro ao criar usuário: ${error.message}`);
+      } else {
+        throw new Error('Erro ao criar usuário: erro desconhecido');
+      }
+    }
   }
 }

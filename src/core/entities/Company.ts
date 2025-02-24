@@ -1,11 +1,12 @@
-import { User } from './User';
 
 export class Company {
-  userId: string;
-  addressId?: string;
-
-  constructor(userId: string, addressId?: string) {
-    this.userId = userId;
-    this.addressId = addressId;
-  }
+  constructor(
+    public id_Company: string,
+    public cnpj: string,
+    public responsibleCpf: string,
+    public userId: string,
+    public addressId?: string,
+    public createdAt?: Date,
+    public updatedAt?: Date
+  ) {}
 }
